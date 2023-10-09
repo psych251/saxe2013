@@ -20,13 +20,13 @@ format:
 
 My research interests are best described by two questions:
 1. What is it that artificial neural networks actually learn about the world, and how do they do so?
-2. What other neural processes do we need to account for human-like reasoning and problem solving in noisy, few-shot settings?
+2. What other neural processes do we need to understand in order to account for human-like reasoning and problem solving in noisy, few-shot settings?
 
 The first question is directly inspired by the work of Saxe et al., and I hope that the methods and intuitions that underlie their work will help me pursue a research program that examines the learning dynamics and knowledge representations of contemporary deep learning systems such as large language models.
 
-The second question requires an intimate familiarity with neural network theory. In reproducing Saxe et al., I also hope to fortify my ability to understand and build upon the mathematics that powers deep learning.
+The second question requires an intimate familiarity with neural network theory. In reproducing Saxe et al., I also hope to fortify my ability to understand and build upon the mathematics that underlies deep learning.
 
-Thus, reproducing this study will both expand my methodological toolkit and provide me with the confidence to pursue a flavour of highly computational research that I currently still find a little intimidating.
+Thus, reproducing this study will both expand my methodological toolkit and provide me with the confidence to pursue a flavor of research that I currently still find a little intimidating.
 
 
 ### Anticipated challenges
