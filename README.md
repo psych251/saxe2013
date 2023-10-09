@@ -1,2 +1,4 @@
-# reproducibility_template
-Template to use for reproducibility projects in PSYCH 251
+# Replication: Learning hierarchical category structure in deep neural networks
+
+RPubs: https://rpubs.com/sjeromeh/psych251
+Original paper: https://stanford.edu/~jlmcc/papers/SaxeMcCGanguli13CogSciProc.pdf
