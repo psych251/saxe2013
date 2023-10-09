@@ -24,7 +24,7 @@ My research interests are best described by two questions:
 
 The first question is directly inspired by the work of Saxe et al., and I hope that the methods and intuitions that underlie their work will help me pursue a research program that examines the learning dynamics and knowledge representations of contemporary deep learning systems such as large language models.
 
-The second question requires an intimate familiarity with neural network theory. In reproducing Saxe et al., I also hope to fortify my ability to understand and build upon the mathematics that powers deep learning so that I too may expand upon it in the future.
+The second question requires an intimate familiarity with neural network theory. In reproducing Saxe et al., I also hope to fortify my ability to understand and build upon the mathematics that powers deep learning.
 
 Thus, reproducing this study will both expand my methodological toolkit and provide me with the confidence to pursue a flavour of highly computational research that I currently still find a little intimidating.
 
