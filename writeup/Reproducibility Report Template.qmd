@@ -1,6 +1,6 @@
 ---
-title: "Reproducibility Report for Study X by Sample & Sample (20xx, Psychological Science)"
-author: "Reproducibility Project Author[s] (contact information)"
+title: "Reproducibility Report for Saxe, McClelland & Ganguli (2013, Proceedings of Cognitive Science Society)"
+author: "S. Jerome Han (sjeromeh@stanford.edu)"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 format:
   html:
@@ -12,29 +12,38 @@ format:
 
 ## Introduction
 
-[No abstract is needed.]  Each reproducibility project will have a straightforward, no frills report of the study and reproducibility results. These reports will be publicly available as supplementary material for the aggregate report(s) of the project as a whole.  Also, to maximize project integrity, the intro and methods will be written and critiqued in advance of your attempt to reproduce the results. Introductions can be just 1-2 paragraphs clarifying the main idea of the original study, the target finding for your reproducibility attempt, and any other essential information.  It will NOT have a literature review -- that is in the original publication. You can write both the introduction and the methods in past tense.  
+\[No abstract is needed.\] Each reproducibility project will have a straightforward, no frills report of the study and reproducibility results. These reports will be publicly available as supplementary material for the aggregate report(s) of the project as a whole. Also, to maximize project integrity, the intro and methods will be written and critiqued in advance of your attempt to reproduce the results. Introductions can be just 1-2 paragraphs clarifying the main idea of the original study, the target finding for your reproducibility attempt, and any other essential information. It will NOT have a literature review -- that is in the original publication. You can write both the introduction and the methods in past tense.
 
-**Clarify key analysis of interest here**  You can also pre-specify additional analyses you plan to do.
+**Clarify key analysis of interest here** You can also pre-specify additional analyses you plan to do.
 
 ### Justification for choice of study
 
-Please describe why you chose to reproduce the results of this study.
+My research interests are best described by two questions:
+1. What is it that artificial neural networks actually learn about the world, and how do they do so?
+2. What other neural processes do we need to account for human-like reasoning and problem solving in noisy, few-shot settings?
+
+The first question is directly inspired by the work of Saxe et al., and I hope that the methods and intuitions that underlie their work will help me pursue a research program that examines the learning dynamics and knowledge representations of contemporary deep learning systems such as large language models.
+
+The second question requires an intimate familiarity with neural network theory. In reproducing Saxe et al., I also hope to fortify my ability to understand and build upon the mathematics that powers deep learning so that I too may expand upon it in the future.
+
+Thus, reproducing this study will both expand my methodological toolkit and provide me with the confidence to pursue a flavour of highly computational research that I currently still find a little intimidating.
+
 
 ### Anticipated challenges
 
-Do you anticipate running into any challenges when attempting to reproduce these result(s)? If so please, list them here.
+For me, this project is inherently challenging because I lack a rigorous background in mathematics. I am also cautious about the feasibility of condensing its intuitions into a 5 minute presentation that is accessible to other students who might also lack existing background. However, it is precisely these challenges that motivate me to take on this project, and I see no significant technical challenges that might inhibit its success.
 
 ### Links
 
-Project repository (on Github): 
+Project repository (on Github): https://github.com/psych251/saxe2013
 
-Original paper (as hosted in your repo): 
+Original paper (as hosted in your repo): https://github.com/psych251/saxe2013/blob/main/original_paper/SaxeMcCGanguli13CogSciProc.pdf
 
 ## Methods
 
 ### Description of the steps required to reproduce the results
 
-Please describe all the steps necessary to reproduce the key result(s) of this study. 
+Please describe all the steps necessary to reproduce the key result(s) of this study.
 
 ### Differences from original study
 
@@ -46,18 +55,16 @@ Explicitly describe known differences in the analysis pipeline between the origi
 
 Please describe the outcome measure for the success or failure of your reproduction and how this outcome will be computed.
 
-
 ### Pipeline progress
 
 Earlier in this report, you described the steps necessary to reproduce the key result(s) of this study. Please describe your progress on each of these steps (e.g., data preprocessing, model fitting, model evaluation).
-
 
 ## Results
 
 ### Data preparation
 
 Data preparation following the analysis plan.
-	
+
 ```{r include=F}
 ### Data Preparation
 
@@ -72,20 +79,20 @@ Data preparation following the analysis plan.
 
 ### Key analysis
 
-The analyses as specified in the analysis plan.  
+The analyses as specified in the analysis plan.
 
 *Side-by-side graph with original graph is ideal here*
 
 ### Exploratory analyses
 
-Any follow-up analyses desired (not required).  
+Any follow-up analyses desired (not required).
 
 ## Discussion
 
 ### Summary of Reproduction Attempt
 
-Open the discussion section with a paragraph summarizing the primary result from the key analysis and assess whether you successfully reproduced it, partially reproduced it, or failed to reproduce it.  
+Open the discussion section with a paragraph summarizing the primary result from the key analysis and assess whether you successfully reproduced it, partially reproduced it, or failed to reproduce it.
 
 ### Commentary
 
-Add open-ended commentary (if any) reflecting (a) insights from follow-up exploratory analysis of the dataset, (b) assessment of the meaning of the successful or unsuccessful reproducibility attempt - e.g., for a failure to reproduce the original findings, are the differences between original and present analyses ones that definitely, plausibly, or are unlikely to have been moderators of the result, and (c) discussion of any objections or challenges raised by the current and original authors about the reproducibility attempt (if you contacted them).  None of these need to be long.
+Add open-ended commentary (if any) reflecting (a) insights from follow-up exploratory analysis of the dataset, (b) assessment of the meaning of the successful or unsuccessful reproducibility attempt - e.g., for a failure to reproduce the original findings, are the differences between original and present analyses ones that definitely, plausibly, or are unlikely to have been moderators of the result, and (c) discussion of any objections or challenges raised by the current and original authors about the reproducibility attempt (if you contacted them). None of these need to be long.
