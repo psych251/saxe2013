@@ -12,14 +12,11 @@ format:
 
 ## Introduction
 
-\[No abstract is needed.\] Each reproducibility project will have a straightforward, no frills report of the study and reproducibility results. These reports will be publicly available as supplementary material for the aggregate report(s) of the project as a whole. Also, to maximize project integrity, the intro and methods will be written and critiqued in advance of your attempt to reproduce the results. Introductions can be just 1-2 paragraphs clarifying the main idea of the original study, the target finding for your reproducibility attempt, and any other essential information. It will NOT have a literature review -- that is in the original publication. You can write both the introduction and the methods in past tense.
-
-**Clarify key analysis of interest here** You can also pre-specify additional analyses you plan to do.
-
 ### Justification for choice of study
 
-My research interests are best described by two questions:
-1. What is it that artificial neural networks actually learn about the world, and how do they do so?
+My research interests are best described by two questions: 
+
+1. What is it that artificial neural networks actually learn from data, and how do they do so? 
 2. What other neural processes do we need to understand in order to account for human-like reasoning and problem solving in noisy, few-shot settings?
 
 The first question is directly inspired by the work of Saxe et al., and I hope that the methods and intuitions that underlie their work will help me pursue a research program that examines the learning dynamics and knowledge representations of contemporary deep learning systems such as large language models.
@@ -28,10 +25,9 @@ The second question requires an intimate familiarity with neural network theory.
 
 Thus, reproducing this study will both expand my methodological toolkit and provide me with the confidence to pursue a flavor of research that I currently still find a little intimidating.
 
-
 ### Anticipated challenges
 
-For me, this project is inherently challenging because I lack a rigorous background in mathematics. I am also cautious about the feasibility of condensing its intuitions into a 5 minute presentation that is accessible to other students who might also lack existing background. However, it is precisely these challenges that motivate me to take on this project, and I see no significant technical challenges that might inhibit its success.
+For me, this project is inherently challenging because I lack a rigorous background in mathematics. No code is available online, so I will have to complete the implementation based on just the paper. I am also cautious about the feasibility of condensing its intuitions into a 5 minute presentation that is accessible to other students who might also lack existing background. However, it is precisely these challenges that motivate me to take on this project, and I see no significant technical challenges that might inhibit its success.
 
 ### Links
 
