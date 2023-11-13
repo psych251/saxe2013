@@ -1,0 +1,191 @@
+---
+title: "R based Reproduction of Saxe et al. 2013"
+output: html_notebook
+---
+
+```{r}
+library(reshape2)
+library(ggplot2)
+library(tidyverse)
+```
+
+Deep linear neural network
+
+```{r}
+# Define the neural network architecture
+N1 <- 5  # Input layer size
+N2 <- 3  # Hidden layer size
+N3 <- 2  # Output layer size
+W21 <- matrix(rnorm(N2 * N1), nrow = N2, ncol = N1) # Weight matrix connecting input to hidden
+W32 <- matrix(rnorm(N3 * N2), nrow = N3, ncol = N2) # Weight matrix connecting hidden to output
+
+# Forward propagation through our network
+forward <- function(x) {
+  z2 <- W21 %*% x
+  z3 <- W32 %*% z2
+  return(z3)
+}
+
+squared_error_loss <- function(y, y_true) {
+  error <- y - y_true
+  loss <- sum(error^2)
+  return(loss)
+}
+
+train <- function(data, learning_rate, num_epochs) {
+  for (epoch in 1:num_epochs) {
+    
+    loss_sum <- 0
+    
+    for (d in data) {
+      
+      x <- d[1]
+      y_true <- d[2]
+      
+      # Forward pass
+      y_pred <- forward(x)
+      loss <- squared_error_loss(y_pred, y_true)
+      loss_sum <- loss_sum + loss
+      
+      # Calculate gradients
+      dW21 <- t(W32) %*% (y_true - y_pred) %*% t(x)
+      dW32 <- (y_true - y_pred) %*% t(W21 %*% x)
+      
+      # Update weights
+      W21 <- W21 - learning_rate * dW21
+      W32 <- W32 - learning_rate * dW32
+      
+    }
+    
+    cat(sprintf("Epoch: %d, Average loss: %.3f\n", epoch, loss_sum / length(data)))
+
+  }
+}
+
+```
+
+Sample hierarchical features from a branching diffusion process
+
+```{r}
+
+D <- 3 # Depth of tree
+e <- 0.1 # Flip probability
+
+flip_feature <- function(flip_probability) {
+  # Return -1 with probability flip_probability, otherwise return 1
+  if (runif(1) < flip_probability) {
+    return(-1)
+  } else {
+    return(1)
+  }
+}
+
+sample_features <- function(node_value, depth, max_depth) {
+  # Sample features from a branching diffusion process
+  
+  left_node_value <- flip_feature(e) * node_value
+  right_node_value <- flip_feature(e) * node_value
+  
+  if (depth == max_depth) {
+    return(c(node_value))
+  } else if (depth + 1== max_depth) {
+    return(c(left_node_value, right_node_value))
+  } else {
+    return(c(sample_features(left_node_value, depth + 1, max_depth), sample_features(right_node_value, depth + 1, max_depth)))
+  }
+}
+
+root_node_value <- flip_feature(0.5)
+sample_features(root_node_value, 0, D-1)
+```
+
+Reproduce figure 2
+
+```{r}
+d <- read_csv("data/natural_dataset.csv", col_names = FALSE)
+svd(d)
+```
+
+Reproduce figure 5
+
+```{r}
+D <- 6 # Depth of tree
+e <- 0.1 # Flip probability
+N <- 200 # Number of features to sample
+  
+simulate_singular_values <- function() {
+  # Generate simulated singular values for figure 5, ie. the red points
+  
+  features <- c()
+  for (i in 1:N) {
+    features <- c(features, list(sample_features(1,0,D-1)))
+  }
+  feature_matrix <- do.call(rbind, features)
+  
+  svd_result <- svd(feature_matrix)
+  sigma <- svd_result$d
+  
+  return(sigma[1:6])
+}
+
+# Simulated singular values
+num_simulations <- 100 # Number of simulations to run
+singular_values <- c()
+for (i in 1:num_simulations) {
+  ssv <- simulate_singular_values()
+  singular_values <- c(singular_values, list(ssv))
+}
+simulated_sv_matrix <- do.call(rbind, singular_values)
+melted_ssv_matrix <- melt(simulated_sv_matrix)
+
+# Theoretically derived singular values
+P <- 2**(D-1) # Number of leaves in our tree
+qs <- c()
+for (k in 0:(D-1)) {
+  qk <- (1-4*e*(1-e))**(D-1-k)
+  qs <- c(qs, qk)
+}
+theoretical_sv <- c()
+for (k in 0:(D-1)) {
+  s <- 0
+  for (l in k:(D-1)) {
+    if (l == 0) {
+      q1 <- 0
+    } else {
+      q1 <- qs[l]
+    }
+    delta_l <- qs[l+1] - q1
+    M_l <- 2**l
+    s <- s + delta_l / M_l
+  }
+  tsv <- sqrt(N*P*s)
+  theoretical_sv <- c(theoretical_sv, tsv)
+}
+
+
+# Create figure 5
+plot(melted_ssv_matrix$Var2-1, melted_ssv_matrix$value, type = "p", pch = 16, col = "red", 
+     xlab = "Hierarchy Level", ylab = "Singular Value", ylim = c(0, 50))
+points(0:5, theoretical_sv, col = "black", pch = 19, cex = 1.5)
+axis(2, at = seq(0, 50, by = 10))
+
+```
+
+```{r}
+t(svd_result$v[1:8,1:8])
+```
+
+```{r}
+
+features <- c()
+for (i in 1:N) {
+  root_node_value <- flip_feature(0.5)
+  features <- c(features, list(sample_features(root_node_value,1,D)))
+}
+feature_matrix <- do.call(rbind, features)
+
+svd_result <- svd(feature_matrix)
+sigma <- svd_result$d
+
+sigma[1:6]
+```
