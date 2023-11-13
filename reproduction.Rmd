@@ -99,11 +99,131 @@ root_node_value <- flip_feature(0.5)
 sample_features(root_node_value, 0, D-1)
 ```
 
-Reproduce figure 2
+# Reproduce figure 2
+
+```{r}
+FONT_FAMILY <- "times new roman"
+
+df
+```
+
+## figure 2 IO
+
+```{r}
+reproduce_figure_2_io <- function(d, gradient_colours) {
+  
+  # Set column and row names
+  colnames(d) <- c("C", "S", "O", "R")
+  df <- melt(as.matrix(d))
+  row_names <- c("M", "F", "S", "B", "P")
+  df$Var1 <- factor(df$Var1, levels = 1:length(row_names), labels = row_names)
+  df$Var1 <- factor(df$Var1, levels = rev(levels(df$Var1)))
+  
+  ggplot(df, aes(Var2, Var1, fill = value)) + 
+    geom_tile(colour = "black", size = 0.7) +
+    gradient_colours +
+    scale_x_discrete(position = "top") +
+    theme_minimal() +
+    theme(
+      axis.title.x.top = element_text(vjust = 2, size = 22, family = FONT_FAMILY),
+      axis.title.x.bottom = element_blank(),
+      axis.title.y.left = element_text(vjust = 2, size = 22, family = FONT_FAMILY),
+      axis.ticks.x = element_blank(),
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_text(size = 18, family = FONT_FAMILY, face = "italic"),
+      axis.text.x = element_text(size = 18, family = FONT_FAMILY, face = "italic"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      legend.position = "none",
+    ) +
+    labs(x = "Items", y = "Properties", fill = "") +
+    coord_fixed() +
+    annotate("rect", xmin = 0.5, xmax = ncol(as.matrix(d)) + 0.5, ymin = 0.5, ymax = nrow(as.matrix(d)) + 0.5, 
+             colour = "white", fill = NA, size = 1)
+  
+  ggsave("figures/fig2_io.png")
+}
+
+reproduce_figure_2_io(d, gradient_colours)
+```
+
+## figure 2 Vt
+
+```{r}
+reproduce_figure_2_vt <- function(vt, gradient_colours) {
+  
+  df <- melt(vt)
+  df <- df[order(df$Var1, decreasing=FALSE),]
+  
+  # Set column names
+  column_names <- c("C", "S", "O", "R")  
+  df$Var2 <- factor(df$Var2, levels = 1:length(column_names), labels = column_names)
+  
+  ggplot(df, aes(Var2, Var1, fill = value)) + 
+    geom_tile(colour = "black", size = 0.7) +
+    gradient_colours +
+    scale_y_reverse() +
+    scale_x_discrete(position = "top") +
+    theme_minimal() +
+    theme(
+      axis.title.x.top = element_text(vjust = 2, size = 22, family = FONT_FAMILY),
+      axis.title.x.bottom = element_blank(),
+      axis.title.y.left = element_text(size = 22, family = FONT_FAMILY),
+      axis.ticks.x = element_blank(),
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.text.x = element_text(size = 18, family = FONT_FAMILY, face = "italic", vjust = -2),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      legend.position = "right",
+      legend.justification = "top",
+      legend.box.just = "top",
+      legend.text = element_text(size = 18, family = FONT_FAMILY),
+      legend.key.size = unit(2.84, "cm")
+    ) +
+    labs(x = "Items", y = "Modes", fill = "") +
+    coord_fixed() +
+    annotate("rect", xmin = 0.5, xmax = ncol(vt) + 0.5, ymin = 0.5, ymax = nrow(vt) + 0.5, 
+             colour = "white", fill = NA, size = 1)
+  
+  ggsave("figures/fig2_vt.png", width = 10, height = 8)
+}
+```
+
+## Put figure 2 together 
 
 ```{r}
 d <- read_csv("data/natural_dataset.csv", col_names = FALSE)
-svd(d)
+s <- svd(d)
+
+norm_matrix <- function(matrix) {
+  # max norm
+  norm <- max(matrix)
+  return(matrix/norm)
+}
+
+# Unit norm and restrict to first three modes, as it is in Saxe et al. figure 2
+vt <- norm_matrix(t(s$v))[1:3,]
+u <- norm_matrix(s$u)[,1:3]
+s <- norm_matrix(diag(s$d))[1:3,1:3]
+
+gradient_colours <- scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                                        midpoint = 0, limit = c(-1, 1), 
+                                        breaks = c(-1, 0, 1))
+
+reproduce_figure_2_vt(vt, gradient_colours)
+
+
+```
+
+
+```{r}
+
+```
+
+```{r}
+t <- list()
+t["f"]
 ```
 
 Reproduce figure 5
