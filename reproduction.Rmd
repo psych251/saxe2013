@@ -7,103 +7,16 @@ output: html_notebook
 library(reshape2)
 library(ggplot2)
 library(tidyverse)
-```
+library(grid)
+library(gridExtra)
+library(png)
 
-Deep linear neural network
-
-```{r}
-# Define the neural network architecture
-N1 <- 5  # Input layer size
-N2 <- 3  # Hidden layer size
-N3 <- 2  # Output layer size
-W21 <- matrix(rnorm(N2 * N1), nrow = N2, ncol = N1) # Weight matrix connecting input to hidden
-W32 <- matrix(rnorm(N3 * N2), nrow = N3, ncol = N2) # Weight matrix connecting hidden to output
-
-# Forward propagation through our network
-forward <- function(x) {
-  z2 <- W21 %*% x
-  z3 <- W32 %*% z2
-  return(z3)
-}
-
-squared_error_loss <- function(y, y_true) {
-  error <- y - y_true
-  loss <- sum(error^2)
-  return(loss)
-}
-
-train <- function(data, learning_rate, num_epochs) {
-  for (epoch in 1:num_epochs) {
-    
-    loss_sum <- 0
-    
-    for (d in data) {
-      
-      x <- d[1]
-      y_true <- d[2]
-      
-      # Forward pass
-      y_pred <- forward(x)
-      loss <- squared_error_loss(y_pred, y_true)
-      loss_sum <- loss_sum + loss
-      
-      # Calculate gradients
-      dW21 <- t(W32) %*% (y_true - y_pred) %*% t(x)
-      dW32 <- (y_true - y_pred) %*% t(W21 %*% x)
-      
-      # Update weights
-      W21 <- W21 - learning_rate * dW21
-      W32 <- W32 - learning_rate * dW32
-      
-    }
-    
-    cat(sprintf("Epoch: %d, Average loss: %.3f\n", epoch, loss_sum / length(data)))
-
-  }
-}
-
-```
-
-Sample hierarchical features from a branching diffusion process
-
-```{r}
-
-D <- 3 # Depth of tree
-e <- 0.1 # Flip probability
-
-flip_feature <- function(flip_probability) {
-  # Return -1 with probability flip_probability, otherwise return 1
-  if (runif(1) < flip_probability) {
-    return(-1)
-  } else {
-    return(1)
-  }
-}
-
-sample_features <- function(node_value, depth, max_depth) {
-  # Sample features from a branching diffusion process
-  
-  left_node_value <- flip_feature(e) * node_value
-  right_node_value <- flip_feature(e) * node_value
-  
-  if (depth == max_depth) {
-    return(c(node_value))
-  } else if (depth + 1== max_depth) {
-    return(c(left_node_value, right_node_value))
-  } else {
-    return(c(sample_features(left_node_value, depth + 1, max_depth), sample_features(right_node_value, depth + 1, max_depth)))
-  }
-}
-
-root_node_value <- flip_feature(0.5)
-sample_features(root_node_value, 0, D-1)
+FONT_FAMILY <- "times new roman"
+TITLE_FONT_SIZE <- 30
+TICK_FONT_SIZE <- 22
 ```
 
 # Reproduce figure 2
-
-```{r}
-FONT_FAMILY <- "times new roman"
-```
 
 ## figure 2 IO
 
@@ -123,13 +36,13 @@ reproduce_figure_2_io <- function(d, gradient_colours) {
     scale_x_discrete(position = "top") +
     theme_minimal() +
     theme(
-      axis.title.x.top = element_text(vjust = 2, size = 22, family = FONT_FAMILY),
+      axis.title.x.top = element_text(vjust = 2, size = TITLE_FONT_SIZE, family = FONT_FAMILY),
       axis.title.x.bottom = element_blank(),
-      axis.title.y.left = element_text(vjust = 2, size = 22, family = FONT_FAMILY),
+      axis.title.y.left = element_text(vjust = 2, size = TITLE_FONT_SIZE, family = FONT_FAMILY),
       axis.ticks.x = element_blank(),
       axis.ticks.y = element_blank(),
-      axis.text.y = element_text(size = 18, family = FONT_FAMILY, face = "italic"),
-      axis.text.x = element_text(size = 18, family = FONT_FAMILY, face = "italic"),
+      axis.text.y = element_text(size = TICK_FONT_SIZE, family = FONT_FAMILY, face = "italic"),
+      axis.text.x = element_text(size = TICK_FONT_SIZE, family = FONT_FAMILY, face = "italic"),
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
       legend.position = "none",
@@ -139,51 +52,7 @@ reproduce_figure_2_io <- function(d, gradient_colours) {
     annotate("rect", xmin = 0.5, xmax = ncol(as.matrix(d)) + 0.5, ymin = 0.5, ymax = nrow(as.matrix(d)) + 0.5, 
              colour = "white", fill = NA, size = 1)
   
-  ggsave("figures/fig2_io.png")
-  
-}
-```
-
-## figure 2 Vt
-
-```{r}
-reproduce_figure_2_vt <- function(vt, gradient_colours) {
-  
-  df <- melt(vt)
-  df <- df[order(df$Var1, decreasing=FALSE),]
-  
-  # Set column names
-  column_names <- c("C", "S", "O", "R")  
-  df$Var2 <- factor(df$Var2, levels = 1:length(column_names), labels = column_names)
-  
-  ggplot(df, aes(Var2, Var1, fill = value)) + 
-    geom_tile(colour = "black", size = 0.7) +
-    gradient_colours +
-    scale_y_reverse() +
-    scale_x_discrete(position = "top") +
-    theme_minimal() +
-    theme(
-      axis.title.x.top = element_text(vjust = 2, size = 22, family = FONT_FAMILY),
-      axis.title.x.bottom = element_blank(),
-      axis.title.y.left = element_text(size = 22, family = FONT_FAMILY),
-      axis.ticks.x = element_blank(),
-      axis.ticks.y = element_blank(),
-      axis.text.y = element_blank(),
-      axis.text.x = element_text(size = 18, family = FONT_FAMILY, face = "italic", vjust = -2),
-      panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank(),
-      legend.position = "right",
-      legend.justification = "top",
-      legend.box.just = "top",
-      legend.text = element_text(size = 18, family = FONT_FAMILY),
-      legend.key.size = unit(2.84, "cm")
-    ) +
-    labs(x = "Items", y = "Modes", fill = "") +
-    coord_fixed() +
-    annotate("rect", xmin = 0.5, xmax = ncol(vt) + 0.5, ymin = 0.5, ymax = nrow(vt) + 0.5, 
-             colour = "white", fill = NA, size = 1)
-  
-  ggsave("figures/fig2_vt.png", width = 10, height = 8)
+  ggsave("figures/fig2_io.png", height = 7, width = 5)
   
 }
 ```
@@ -206,13 +75,13 @@ reproduce_figure_2_u <- function(u, gradient_colours) {
     scale_x_continuous(position = "top") +
     theme_minimal() +
     theme(
-      axis.title.x.top = element_text(vjust = 2, size = 22, family = FONT_FAMILY),
+      axis.title.x.top = element_text(vjust = 2, size = TITLE_FONT_SIZE, family = FONT_FAMILY),
       axis.title.x.bottom = element_blank(),
-      axis.title.y.left = element_text(vjust = 2, size = 22, family = FONT_FAMILY),
+      axis.title.y.left = element_text(vjust = 2, size = TITLE_FONT_SIZE, family = FONT_FAMILY),
       axis.ticks.x = element_blank(),
       axis.ticks.y = element_blank(),
-      axis.text.y = element_text(size = 18, family = FONT_FAMILY, face = "italic"),
-      axis.text.x = element_text(size = 18, family = FONT_FAMILY, face = "italic"),
+      axis.text.y = element_text(size = TICK_FONT_SIZE, family = FONT_FAMILY, face = "italic"),
+      axis.text.x = element_text(size = TICK_FONT_SIZE, family = FONT_FAMILY, face = "italic"),
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
       legend.position = "none",
@@ -222,10 +91,92 @@ reproduce_figure_2_u <- function(u, gradient_colours) {
     annotate("rect", xmin = 0.5, xmax = ncol(u) + 0.5, ymin = 0.5, ymax = nrow(u) + 0.5, 
              colour = "white", fill = NA, size = 1)
   
-  ggsave("figures/fig2_u.png")
+  ggsave("figures/fig2_u.png", height = 7, width = 6)
   
 }
 
+```
+
+## figure 2 SV
+
+```{r}
+reproduce_figure_2_sv <- function(sv, gradient_colours) {
+  
+  df <- melt(sv)
+  df <- df[order(df$Var1, decreasing=FALSE),]
+  
+  ggplot(df, aes(Var2, Var1, fill = value)) + 
+    geom_tile(colour = "black", size = 0.7) +
+    gradient_colours +
+    scale_y_reverse() + 
+    scale_x_continuous(position = "top") +
+    theme_minimal() +
+    theme(
+      axis.title.x.top = element_text(vjust = 2, size = TITLE_FONT_SIZE, family = FONT_FAMILY),
+      axis.title.x.bottom = element_blank(),
+      axis.title.y.left = element_text(vjust = 2, size = TITLE_FONT_SIZE, family = FONT_FAMILY),
+      axis.ticks.x = element_blank(),
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.text.x = element_text(size = TICK_FONT_SIZE, family = FONT_FAMILY, face = "italic"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      legend.position = "none",
+    ) +
+    labs(x = "Modes", y = "Modes", fill = "") +
+    coord_fixed() +
+    annotate("rect", xmin = 0.5, xmax = ncol(sv) + 0.5, ymin = 0.5, ymax = nrow(sv) + 0.5, 
+             colour = "white", fill = NA, size = 1)
+  
+  ggsave("figures/fig2_sv.png", height = 7, width = 4)
+}
+
+reproduce_figure_2_sv(sv, gradient_colours)
+
+```
+
+## figure 2 Vt
+
+```{r}
+reproduce_figure_2_vt <- function(vt, gradient_colours) {
+  
+  df <- melt(vt)
+  df <- df[order(df$Var1, decreasing=FALSE),]
+  
+  # Set column names
+  column_names <- c("C", "S", "O", "R")  
+  df$Var2 <- factor(df$Var2, levels = 1:length(column_names), labels = column_names)
+  
+  ggplot(df, aes(Var2, Var1, fill = value)) + 
+    geom_tile(colour = "black", size = 0.7) +
+    gradient_colours +
+    scale_y_reverse() +
+    scale_x_discrete(position = "top") +
+    theme_minimal() +
+    theme(
+      axis.title.x.top = element_text(vjust = 2, size = TITLE_FONT_SIZE, family = FONT_FAMILY),
+      axis.title.x.bottom = element_blank(),
+      axis.title.y.left = element_text(size = TITLE_FONT_SIZE, family = FONT_FAMILY),
+      axis.ticks.x = element_blank(),
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.text.x = element_text(size = TICK_FONT_SIZE, family = FONT_FAMILY, face = "italic", vjust = -2),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      legend.position = "right",
+      legend.justification = "top",
+      legend.box.just = "top",
+      legend.text = element_text(size = 50, family = FONT_FAMILY),
+      legend.key.size = unit(2.675, "cm")
+    ) +
+    labs(x = "Items", y = "Modes", fill = "") +
+    coord_fixed() +
+    annotate("rect", xmin = 0.5, xmax = ncol(vt) + 0.5, ymin = 0.5, ymax = nrow(vt) + 0.5, 
+             colour = "white", fill = NA, size = 1)
+  
+  ggsave("figures/fig2_vt.png", width = 10, height = 8)
+  
+}
 ```
 
 ## Put figure 2 together 
@@ -253,23 +204,237 @@ gradient_colours <- scale_fill_gradient2(low = "blue", high = "red", mid = "whit
 # Reproduce individual components of figure 2
 reproduce_figure_2_io(d, gradient_colours)
 reproduce_figure_2_u(u, gradient_colours)
+reproduce_figure_2_sv(sv, gradient_colours)
 reproduce_figure_2_vt(vt, gradient_colours)
 
+# Fuck it, just put the rest together in Canva. So annoying to do this with grids.
 
 ```
 
+# Sample hierarchical features from a branching diffusion process
+Helper functions for figures 3, 4 and 5
 
 ```{r}
-df <- melt(u)
-df <- df[order(df$Var1, decreasing=FALSE),]
-row_names <- c("M", "F", "S", "B", "P")
-df$Var1 <- factor(df$Var1, levels = 1:length(row_names), labels = row_names)
-df$Var1 <- factor(df$Var1, levels = rev(levels(df$Var1)))
+
+flip_feature <- function(flip_probability) {
+  # Return -1 with probability flip_probability, otherwise return 1
+  if (runif(1) < flip_probability) {
+    return(-1)
+  } else {
+    return(1)
+  }
+}
+
+sample_feature_vector <- function(node_value, depth, max_depth, e) {
+  # Sample feature vector from a branching diffusion process
   
-df
+  left_node_value <- flip_feature(e) * node_value
+  right_node_value <- flip_feature(e) * node_value
+  
+  if (depth == max_depth) {
+    return(c(node_value))
+  } else if (depth + 1== max_depth) {
+    return(c(left_node_value, right_node_value))
+  } else {
+    return(c(sample_features(left_node_value, depth + 1, max_depth), sample_features(right_node_value, depth + 1, max_depth)))
+  }
+}
+
+sample_feature_matrix <- function(d, e, n) {
+  # Sample 'n' features from a branching diffusion process of depth 'd' with flip probability 'e'
+  
+  features <- c()
+  for (i in 1:n) {
+    root_node_value <- flip_feature(0.5)
+    feature <- list(sample_feature_vector(root_node_value, 0, d-1, e))
+    features <- c(features, feature)
+  }
+  
+  feature_matrix <- do.call(rbind, features)
+  
+  return(feature_matrix)
+}
+
 ```
 
-Reproduce figure 5
+# Deep linear network training
+Helper function for figure 3
+
+```{r}
+
+sample_train_data <- function(D, e, N) {
+  # Sample training dataset from a hierarchical diffusion process
+  
+  train_Y <- t(sample_feature_matrix(D, e, N))
+  train_X <- diag(4)
+  
+  train_data <- c()
+  for (i in 1:4) {
+    train_data <- c(train_data, list(list(unlist(train_X[i,]), unlist(train_Y[i,]))))
+  }
+  
+  return(train_data)
+  
+}
+
+initialise_network <- function(N1, N2, N3) {
+  # Initialise a three layer linear network with layer sizes N1, N2, N3
+  
+  network <- list(
+    W21 = matrix(rnorm(N2 * N1, mean = 0, sd = sqrt(0.001)), nrow = N2, ncol = N1),
+    W32 = matrix(rnorm(N3 * N2, mean = 0, sd = sqrt(0.001)), nrow = N3, ncol = N2)
+  )
+  
+  return(network)
+}
+
+forward <- function(network, x) {
+  # Forward propagation through our network
+  z2 <- network$W21 %*% x
+  z3 <- network$W32 %*% z2
+  return(z3)
+}
+
+squared_error_loss <- function(y, y_true) {
+  error <- y - y_true
+  loss <- sum(error^2)
+  return(loss)
+}
+
+train_network <- function(network, data, learning_rate, num_epochs) {
+  # Train our three layer deep linear network, return singular values of weights across training
+  
+  singular_values <- c()
+    
+  for (epoch in 1:num_epochs) {
+    
+    loss_sum <- 0
+    
+    for (d in data) {
+      
+      x <- d[1][[1]]
+      y_true <- d[2][[1]]
+      
+      # Forward pass
+      y_pred <- forward(network, x)
+      loss <- squared_error_loss(y_pred, y_true)
+      loss_sum <- loss_sum + loss
+      
+      # Calculate gradients
+      dW21 <- t(network$W32) %*% (y_true - y_pred) %*% t(x)
+      dW32 <- (y_true - y_pred) %*% t(network$W21 %*% x)
+      
+      # Update weights
+      network$W21 <- network$W21 + learning_rate * dW21
+      network$W32 <- network$W32 + learning_rate * dW32
+      
+    }
+    
+    if (epoch %% 100 == 0) {
+      cat(sprintf("Epoch: %d, Average loss: %.3f\n", epoch, loss_sum / length(data)))
+    }
+    
+    # Calculate singular values
+    sv <- svd(network$W32 %*% network$W21)$d[1:3]
+    singular_values <- c(singular_values, list(sv))
+
+  }
+  
+  return(singular_values)
+}
+
+simulate_weight_sv <- function(train_data, N1, N2, N3, learning_rate, num_epochs) {
+  # Single simulation for fig 3 (the red lines)
+  
+  network <- initialise_network(N1, N2, N3)
+  singular_values <- train_network(network, train_data, learning_rate, num_epochs)
+  
+  return(singular_values)
+}
+
+```
+
+```{r}
+# GENERATE TRAINING DATASET
+D <- 3 # Depth of tree
+e <- 0.1 # Flip probability
+N <- 10000 # Number of features to sample
+
+train_data <- sample_train_data(D, e, N)
+
+# DEEP LINEAR NETWORK ARCHITECTURE
+N1 <- 4  # Input layer size
+N2 <- 10  # Hidden layer size
+N3 <- 10000  # Output layer size
+LEARNING_RATE <- 0.00025
+NUM_EPOCHS <- 600
+
+# RUN TRAINING SIMS
+NUM_SIMULATIONS <- 10
+singular_values <- c()
+for (i in 1:NUM_SIMULATIONS) {
+  svs <- simulate_weight_sv(train_data, N1, N2, N3, LEARNING_RATE, NUM_EPOCHS)
+  svs <- do.call(rbind, svs)
+  singular_values <- c(singular_values, list(svs))
+}
+
+```
+
+```{r}
+singular_values[[2]]
+```
+
+```{r}
+#train(train_data, 0.01, 1000)
+
+# Define the neural network architecture
+N1 <- 4  # Input layer size
+N2 <- 10  # Hidden layer size
+N3 <- 10000  # Output layer size
+W21 <- matrix(rnorm(N2 * N1, mean = 0, sd = sqrt(0.001)), nrow = N2, ncol = N1) # Weight matrix connecting input to hidden
+W32 <- matrix(rnorm(N3 * N2, mean = 0, sd = sqrt(0.001)), nrow = N3, ncol = N2) # Weight matrix connecting hidden to output
+
+data <- train_data
+learning_rate <- 0.00025
+num_epochs <- 600
+
+singular_values <- c()
+    
+for (epoch in 1:num_epochs) {
+  
+  loss_sum <- 0
+  
+  for (d in data) {
+    
+    x <- d[1][[1]]
+    y_true <- d[2][[1]]
+    
+    # Forward pass
+    y_pred <- forward(x)
+    loss <- squared_error_loss(y_pred, y_true)
+    loss_sum <- loss_sum + loss
+    
+    # Calculate gradients
+    dW21 <- t(W32) %*% (y_true - y_pred) %*% t(x)
+    dW32 <- (y_true - y_pred) %*% t(W21 %*% x)
+    
+    # Update weights
+    W21 <- W21 + learning_rate * dW21
+    W32 <- W32 + learning_rate * dW32
+    
+  }
+  
+  cat(sprintf("Epoch: %d, Average loss: %.3f\n", epoch, loss_sum / length(data)))
+  
+  # Calculate singular values
+  sv <- svd(W32 %*% W21)$d[1:3]
+  singular_values <- c(singular_values, list(sv))
+
+}
+
+```
+
+# Reproduce figure 5
 
 ```{r}
 D <- 6 # Depth of tree
@@ -279,11 +444,7 @@ N <- 200 # Number of features to sample
 simulate_singular_values <- function() {
   # Generate simulated singular values for figure 5, ie. the red points
   
-  features <- c()
-  for (i in 1:N) {
-    features <- c(features, list(sample_features(1,0,D-1)))
-  }
-  feature_matrix <- do.call(rbind, features)
+  feature_matrix <- sample_feature_matrix(D, e, N)
   
   svd_result <- svd(feature_matrix)
   sigma <- svd_result$d
@@ -325,12 +486,15 @@ for (k in 0:(D-1)) {
   theoretical_sv <- c(theoretical_sv, tsv)
 }
 
+png("figures/fig5.png", width = 1100, height = 600)
 
 # Create figure 5
 plot(melted_ssv_matrix$Var2-1, melted_ssv_matrix$value, type = "p", pch = 16, col = "red", 
      xlab = "Hierarchy Level", ylab = "Singular Value", ylim = c(0, 50))
 points(0:5, theoretical_sv, col = "black", pch = 19, cex = 1.5)
 axis(2, at = seq(0, 50, by = 10))
+
+dev.off()
 
 ```
 
