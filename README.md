@@ -1,4 +1,4 @@
-# Replication: Learning hierarchical category structure in deep neural networks
+# Reproduction: Learning hierarchical category structure in deep neural networks
 
 RPubs: https://rpubs.com/sjeromeh/saxereplication
 
