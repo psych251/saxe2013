@@ -10,6 +10,7 @@ library(tidyverse)
 library(grid)
 library(gridExtra)
 library(png)
+library(pbapply)
 
 FONT_FAMILY <- "times new roman"
 TITLE_FONT_SIZE <- 30
@@ -245,11 +246,16 @@ sample_feature_matrix <- function(d, e, n) {
   # Sample 'n' features from a branching diffusion process of depth 'd' with flip probability 'e'
   
   features <- c()
-  for (i in 1:n) {
+  pblapply(1:n, function(x) {
     root_node_value <- flip_feature(0.5)
     feature <- list(sample_feature_vector(root_node_value, 0, d-1, e))
-    features <- c(features, feature)
-  }
+    features <<- c(features, feature)
+  })
+  #for (i in 1:n) {
+  #  root_node_value <- flip_feature(0.5)
+  #  feature <- list(sample_feature_vector(root_node_value, 0, d-1, e))
+  #  features <- c(features, feature)
+  #}
   
   feature_matrix <- do.call(rbind, features)
   
@@ -454,8 +460,50 @@ ggplot(combined_df, aes(x = X, y = value, group = interaction(factor(line_type, 
 ggsave("figures/fig3.png", width = 10, height = 7)
 ```
 
+# Reproduce figure 4b
+
 ```{r}
-ss
+
+# GENERATE SAMPLE DATASET
+D <- 4 # Depth of tree
+e <- 0.1 # Flip probability
+N <- 5000 # Number of features to sample
+
+for (n in c(10, 100, 1000, 10000)) {
+  for (k in 1:10) {
+
+    sample_data <- sample_feature_matrix(D, e, n)
+    object_analyser <- svd(sample_data)$v
+    
+    oa_df <- reshape2::melt(round(object_analyser, 2))
+    custom_colors <- scale_fill_gradientn(colors = c("#0a2ca0", "#9af482", "#94251c"),  
+                            values = scales::rescale(c(-1, 0, 1)),
+                            limits = c(-1, 1))
+    
+    ggplot(oa_df, aes(Var1, Var2, fill = value)) +
+      geom_tile() +
+      geom_text(aes(label=value), color="black", size=4, family="Times New Roman") +
+      geom_hline(yintercept = seq(0.5, 8.5, by = 1), color = "black") +  # Adding horizontal black lines
+      custom_colors +
+      theme_minimal() +
+      scale_x_continuous(breaks = 1:8) +  # Adjust x-axis ticks  # Flip and adjust y-axis ticks
+      scale_y_reverse(breaks = 1:8, labels = 1:8) + 
+      labs(
+            fill=NULL,
+            x="Labels",
+            y="Modes"
+        ) +
+      theme(
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+        ) +
+      coord_fixed(ratio = 1)
+    
+    ggsave(sprintf("figures/fig4/fig4_%d_%d.png", n, k), width = 10, height = 7)
+    
+  }
+}
+
 ```
 
 # Reproduce figure 5
